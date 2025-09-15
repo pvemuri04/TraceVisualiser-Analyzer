@@ -1,0 +1,38 @@
+.path-display {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.path-display h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 18px;
+}
+
+.path {
+  display: flex;
+  flex-direction: column;
+}
+
+.path-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 5px 0;
+}
+
+.path-arrow {
+  margin: 0 8px;
+  color: #3498db;
+  font-weight: bold;
+}
+
+.empty-path {
+  color: #888;
+  font-style: italic;
+  padding: 10px 0;
+}

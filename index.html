@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; }
+        #controls { padding: 10px; background-color: #e9ecef; width: 100%; box-sizing: border-box; text-align: center; }
+        #search-box { padding: 5px; width: 300px; }
+        #details-panel { height: 15%; width: 98%; background-color: #333; color: #eee; font-family: monospace; white-space: pre; overflow-y: auto; border: 1px solid #ccc; margin-top: 10px; padding: 10px; box-sizing: border-box; }
+        #diagram-container { flex-grow: 1; width: 98%; background-color: white; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-top: 10px; margin-bottom: 10px; }
+        .faded { opacity: 0.15 !important; }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <input type="text" id="search-box" placeholder="Filter by PID or TID...">
+    </div>
+    <div id="details-panel">Click on a node in the diagram to see the full log details here.</div>
+
+    <div id="diagram-container">
+        <div class="mermaid" id="mermaid-graph">
+            Loading graph...
+        </div>
+    </div>
+
+    <script>
+    const detailsPanel = document.getElementById('details-panel');
+    const diagramContainer = document.getElementById('mermaid-graph');
+    const searchBox = document.getElementById('search-box');
+
+    function getCoreId(nodeId) {
+        const idParts = nodeId.split('-');
+        return idParts.find(part => part.startsWith('E'));
+    }
+
+    function applyFilter(eventData) {
+        const searchTerm = searchBox.value.trim();
+        const allDiagramElements = document.querySelectorAll('.node, .edge-path');
+
+        if (!searchTerm) {
+            allDiagramElements.forEach(el => el.classList.remove('faded'));
+            return;
+        }
+
+        const matchingNodeIds = new Set();
+        for (const coreId in eventData) {
+            const data = eventData[coreId];
+            if (data.pid.includes(searchTerm) || data.tid.includes(searchTerm)) {
+                matchingNodeIds.add(coreId);
+            }
+        }
+
+        document.querySelectorAll('.node').forEach(node => {
+            const coreId = getCoreId(node.id);
+            if (matchingNodeIds.has(coreId)) {
+                node.classList.remove('faded');
+            } else {
+                node.classList.add('faded');
+            }
+        });
+        
+        document.querySelectorAll('.edge-path').forEach(edge => {
+            const edgeNodeIds = edge.className.baseVal.split(' ').find(cls => cls.startsWith('L-'));
+            if (edgeNodeIds) {
+                const [_, startNodeId, endNodeId] = edgeNodeIds.split('-');
+                if (matchingNodeIds.has(startNodeId) && matchingNodeIds.has(endNodeId)) {
+                    edge.classList.remove('faded');
+                } else {
+                    edge.classList.add('faded');
+                }
+            }
+        });
+    }
+
+    function makeNodesClickable(eventData) {
+        document.querySelectorAll('.node').forEach(node => {
+            const coreId = getCoreId(node.id);
+            if (coreId && eventData[coreId]) {
+                node.style.cursor = 'pointer';
+                node.addEventListener('click', () => {
+                    detailsPanel.textContent = eventData[coreId].logLine;
+                });
+            }
+        });
+    }
+
+    function generateMermaidFromParsedLog(parsedLog) {
+        let mermaid = 'graph TD\n';
+        mermaid += '    classDef entry fill:#d4edda,stroke:#155724,stroke-width:2px\n';
+        mermaid += '    classDef exit fill:#f8d7da,stroke:#721c24,stroke-width:2px\n';
+        mermaid += '    classDef debug fill:#fff3cd,stroke:#856404,stroke-width:2px\n\n';
+        const eventData = {};
+        const eventIds = [];
+        let i = 0;
+        for (const [timestamp, attrs] of Object.entries(parsedLog)) {
+            const eventId = `E${i}`;
+            eventIds.push(eventId);
+            const label = `${attrs.module} (${attrs.process})`;
+            mermaid += `    ${eventId}("${label}")\n`;
+            eventData[eventId] = {
+                logLine: `${timestamp} ${attrs.process}[${attrs.pid}:${attrs.tid}]: ${attrs.module} ${attrs.event_type} ${attrs.message}`,
+                pid: attrs.pid,
+                tid: attrs.tid
+            };
+            i++;
+        }
+        for (let j = 0; j < eventIds.length - 1; j++) {
+            mermaid += `    ${eventIds[j]} --> ${eventIds[j+1]}\n`;
+        }
+        return { mermaid, eventData };
+    }
+
+    async function renderAndAttachEvents() {
+        try {
+            const response = await fetch('parsed_log.json');
+            const parsedLog = await response.json();
+            const { mermaid: mermaidString, eventData } = generateMermaidFromParsedLog(parsedLog);
+            diagramContainer.textContent = mermaidString;
+            mermaid.initialize({ startOnLoad: false });
+            await mermaid.run({ nodes: [diagramContainer] });
+            makeNodesClickable(eventData);
+            searchBox.addEventListener('input', () => applyFilter(eventData));
+        } catch (error) {
+            detailsPanel.textContent = `Error: ${error.message}`;
+        }
+    }
+
+    renderAndAttachEvents();
+    </script>
+</body>
+</html>
