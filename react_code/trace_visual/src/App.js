@@ -66,39 +66,6 @@ function App() {
     }
   };
 
-  const handleSearch = (term) => {
-    setSearchTerm(term);
-    setSearchedFunction(term); // Set searched function for timeline
-    
-    if (!term.trim()) {
-      setFilteredData(hierarchyData);
-      return;
-    }
-    
-    // Filter the hierarchical data based on search term
-    const filterNode = (node) => {
-      // Filter by class name or function name
-      if (node.name.toLowerCase().includes(term.toLowerCase()) || 
-          (node.functionName && node.functionName.toLowerCase().includes(term.toLowerCase()))) {
-        return true;
-      }
-      
-      if (node.children && node.children.length > 0) {
-        const filteredChildren = node.children.filter(filterNode);
-        if (filteredChildren.length > 0) {
-          node.children = filteredChildren;
-          return true;
-        }
-      }
-      
-      return false;
-    };
-    
-    const newFilteredData = JSON.parse(JSON.stringify(hierarchyData)); // Deep clone
-    newFilteredData.children = newFilteredData.children.filter(filterNode);
-    setFilteredData(newFilteredData);
-  };
-
   const handleNodeSelect = (path, node) => { // Added node parameter
     setSelectedPath(path);
     if (node && node.functionName) {
@@ -136,7 +103,11 @@ function App() {
         
         <main className="main-content">
           <div className="controls">
-            <SearchBar onSearch={handleSearch} />
+            <SearchBar 
+              hierarchyData={hierarchyData}
+              setFilteredData={setFilteredData}
+              setSearchTerm={setSearchTerm}
+            />
             <div className="tabs">
               <button 
                 className={`tab ${activeTab === 'tree' ? 'active' : ''}`}

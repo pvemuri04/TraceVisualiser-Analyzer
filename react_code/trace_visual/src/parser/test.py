@@ -1,6 +1,7 @@
 import re
 import json
 import html
+import os
 from datetime import datetime
 
 def parse_log_line(line):
@@ -25,8 +26,9 @@ def parse_log_line(line):
     return None, None
 
 def main():
-    log_file = 'arb_rcpd.log'
-    output_file = 'parsed_log.json'
+    script_dir = os.path.dirname(__file__)
+    log_file = os.path.join(script_dir, 'arb_rcpd.log')
+    output_file = os.path.join(script_dir, 'parsed_log.json')
     data = []
     with open(log_file, 'r') as f:
         for line in f:
@@ -43,5 +45,6 @@ def main():
     with open(output_file, 'w') as f:
         json.dump(sorted_data, f, indent=2)
     print(f"Parsed log saved to {output_file}")
+
 if __name__ == "__main__":
     main()
