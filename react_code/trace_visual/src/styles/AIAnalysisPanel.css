@@ -1,0 +1,68 @@
+.ai-analysis-panel {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: 100%;
+    overflow-y: auto;
+}
+
+.ai-analysis-panel h2 {
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.analysis-section {
+    margin-bottom: 30px;
+}
+
+.analysis-section h3 {
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.recommendations ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.recommendations li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+    color: #444;
+}
+
+.anomaly-item, .error-pattern-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+    transition: box-shadow 0.3s ease;
+}
+
+.anomaly-item:hover, .error-pattern-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.anomaly-item strong, .error-pattern-item strong {
+    color: #d9534f;
+}
+
+.anomaly-item p, .error-pattern-item p {
+    margin: 5px 0 0 0;
+    color: #666;
+}
+
+.sample-message {
+    background-color: #eee;
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 10px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 0.9em;
+    color: #333;
+}

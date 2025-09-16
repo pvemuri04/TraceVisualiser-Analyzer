@@ -4,53 +4,116 @@ import PathDisplay from './components/PathDisplay';
 import SearchBar from './components/SearchBar';
 import TimelineView from './components/TimelineView';
 import StatsPanel from './components/StatsPanel';
+import AIAnalysisPanel from './components/AIAnalysisPanel'; // New import
 import { transformLogData } from './utils/dataTransformer';
 import './App.css';
 
-// Sample data - replace with actual data fetching
-import sampleData from './parser/parsed_log.json';
-
 function App() {
-  const [logData, setLogData] = useState(null);
+  const [logData, setLogData] = useState({}); // Changed to empty object to avoid null checks everywhere
   const [hierarchyData, setHierarchyData] = useState(null);
   const [selectedPath, setSelectedPath] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredData, setFilteredData] = useState(null);
   const [activeTab, setActiveTab] = useState('tree'); // 'tree' or 'timeline'
+  const [searchedFunction, setSearchedFunction] = useState(null); // New state for searched function
+  const [analysisResults, setAnalysisResults] = useState(null); // New state for AI analysis results
+  const [highlightedLogEntry, setHighlightedLogEntry] = useState(null); // New state for highlighting in ClassTree
+  const [totalLogEntries, setTotalLogEntries] = useState(0); // New state for total log entries
+  const [loading, setLoading] = useState(true); // New loading state
 
     useEffect(() => {
-    // In a real app, you would fetch the data from your API or server
-    // For now, we'll use the sample data
     const fetchData = async () => {
       try {
-        // Simulating API call with setTimeout
-        setTimeout(() => {
-          setLogData(sampleData);
-          const transformed = transformLogData(sampleData);
-          setHierarchyData(transformed);
-          setFilteredData(transformed);
-        }, 500);
-        
-        // In a real app, you would do something like:
-        // const response = await fetch('/api/parsed_log.json');
-        // const data = await response.json();
-        // setLogData(data);
-        // setHierarchyData(transformLogData(data));
+        // Fetch initial log chunk
+        const logChunkResponse = await fetch('http://localhost:5000/api/log_chunk?offset=0&limit=1000');
+        const logChunkData = await logChunkResponse.json();
+        setLogData(logChunkData.chunk);
+        setTotalLogEntries(logChunkData.total_entries);
+
+        // Transform the initial chunk for hierarchy
+        const transformed = transformLogData(logChunkData.chunk);
+        setHierarchyData(transformed);
+        setFilteredData(transformed);
+
+        // Fetch AI analysis results
+        const analysisResponse = await fetch('http://localhost:5000/api/analysis');
+        const analysisData = await analysisResponse.json();
+        setAnalysisResults(analysisData);
+
       } catch (error) {
-        console.error("Error fetching log data:", error);
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
-    
+
     fetchData();
-  }, []);
+  }, []); // Empty dependency array to run once on mount
 
-
-
-  const handleNodeSelect = (path) => {
-    setSelectedPath(path);
+  const fetchMoreLogData = async (offset, limit) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/log_chunk?offset=${offset}&limit=${limit}`);
+      const data = await response.json();
+      setLogData(prevLogData => ({ ...prevLogData, ...data.chunk }));
+      // Re-transform hierarchy data with new log data
+      const transformed = transformLogData({ ...logData, ...data.chunk });
+      setHierarchyData(transformed);
+      setFilteredData(transformed);
+      return data.has_more; // Return if there's more data
+    } catch (error) {
+      console.error("Error fetching more log data:", error);
+      return false;
+    }
   };
 
-  if (!logData || !hierarchyData) {
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    setSearchedFunction(term); // Set searched function for timeline
+    
+    if (!term.trim()) {
+      setFilteredData(hierarchyData);
+      return;
+    }
+    
+    // Filter the hierarchical data based on search term
+    const filterNode = (node) => {
+      // Filter by class name or function name
+      if (node.name.toLowerCase().includes(term.toLowerCase()) || 
+          (node.functionName && node.functionName.toLowerCase().includes(term.toLowerCase()))) {
+        return true;
+      }
+      
+      if (node.children && node.children.length > 0) {
+        const filteredChildren = node.children.filter(filterNode);
+        if (filteredChildren.length > 0) {
+          node.children = filteredChildren;
+          return true;
+        }
+      }
+      
+      return false;
+    };
+    
+    const newFilteredData = JSON.parse(JSON.stringify(hierarchyData)); // Deep clone
+    newFilteredData.children = newFilteredData.children.filter(filterNode);
+    setFilteredData(newFilteredData);
+  };
+
+  const handleNodeSelect = (path, node) => { // Added node parameter
+    setSelectedPath(path);
+    if (node && node.functionName) {
+      setSearchedFunction(node.functionName); // Highlight function in timeline
+    } else {
+      setSearchedFunction(null);
+    }
+  };
+
+  const navigateToClassTreeAndHighlight = (logEntry) => {
+    setActiveTab('tree'); // Switch to Class Tree tab
+    setHighlightedLogEntry(logEntry); // Set the log entry to highlight
+  };
+
+  if (loading) {
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
@@ -68,16 +131,12 @@ function App() {
       <div className="app-container">
         <aside className="sidebar">
           <PathDisplay path={selectedPath} />
-          <StatsPanel logData={logData} />
+          <StatsPanel logData={logData} analysisResults={analysisResults} />
         </aside>
         
         <main className="main-content">
           <div className="controls">
-            <SearchBar 
-              hierarchyData={hierarchyData}
-              setFilteredData={setFilteredData}
-              setSearchTerm={setSearchTerm}
-            />
+            <SearchBar onSearch={handleSearch} />
             <div className="tabs">
               <button 
                 className={`tab ${activeTab === 'tree' ? 'active' : ''}`}
@@ -91,6 +150,12 @@ function App() {
               >
                 Timeline
               </button>
+              <button 
+                className={`tab ${activeTab === 'ai_analysis' ? 'active' : ''}`}
+                onClick={() => setActiveTab('ai_analysis')}
+              >
+                AI Analysis
+              </button>
             </div>
           </div>
           
@@ -99,9 +164,20 @@ function App() {
               <ClassTree 
                 data={filteredData} 
                 onNodeSelect={handleNodeSelect} 
+                highlightedLogEntry={highlightedLogEntry} // New prop
+              />
+            ) : activeTab === 'timeline' ? (
+              <TimelineView
+                logData={logData}
+                searchedFunction={searchedFunction}
+                totalLogEntries={totalLogEntries}
+                fetchMoreLogData={fetchMoreLogData} // New prop
               />
             ) : (
-              <TimelineView logData={logData} />
+              <AIAnalysisPanel
+                analysisResults={analysisResults}
+                onNavigateToClassTree={navigateToClassTreeAndHighlight} // New prop
+              />
             )}
           </div>
         </main>

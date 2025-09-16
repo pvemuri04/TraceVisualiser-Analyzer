@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/ClassTree.css';
 
 const StatementNode = ({ statement }) => {
@@ -14,19 +14,26 @@ const StatementNode = ({ statement }) => {
     </div>
   );
 };
-const ClassNode = ({ node, onNodeSelect, level = 0, path = [] }) => {
+
+const ClassNode = ({ node, onNodeSelect, level = 0, path = [], highlightedLogEntry, isHighlighted }) => {
   const [expanded, setExpanded] = useState(false);
   const currentPath = [...path, node.name];
   
   const handleClick = () => {
     setExpanded(!expanded);
-    onNodeSelect(currentPath);
+    onNodeSelect(currentPath, node);
   };
-  
+
+  useEffect(() => {
+    if (isHighlighted) {
+      setExpanded(true);
+    }
+  }, [isHighlighted]);
+
   return (
     <div className="node-container">
       <div 
-        className={`class-node ${expanded ? 'expanded' : ''}`} 
+        className={`class-node ${expanded ? 'expanded' : ''} ${isHighlighted ? 'highlighted' : ''}`} 
         onClick={handleClick}
         style={{ marginLeft: `${level * 20}px` }}
       >
@@ -49,7 +56,7 @@ const ClassNode = ({ node, onNodeSelect, level = 0, path = [] }) => {
         <div className="children-container">
           {node.children.map((child, index) => (
             <React.Fragment key={index}>
-              {index < node.children.length  && (
+              {index < node.children.length && (
                 <div className="arrow-container">
                   <svg width="30" height="40">
                     <defs>
@@ -61,14 +68,14 @@ const ClassNode = ({ node, onNodeSelect, level = 0, path = [] }) => {
                         refY="3.5"
                         orient="auto"
                       >
-                        <polygon points="0 0, 10 3.5, 0 7" fill="#3498db" />
+                        <polygon points="0 0, 10 3.5, 0 7" />
                       </marker>
                     </defs>
                     <line
                       x1="15"
-                      y1="10%"
+                      y1="0"
                       x2="15"
-                      y2="90%"
+                      y2="40"
                       stroke="#3498db"
                       strokeWidth="2"
                       markerEnd={`url(#arrowhead-vert-${level}-${index})`}
@@ -81,8 +88,9 @@ const ClassNode = ({ node, onNodeSelect, level = 0, path = [] }) => {
                 onNodeSelect={onNodeSelect} 
                 level={level + 1}
                 path={currentPath}
+                highlightedLogEntry={highlightedLogEntry}
+                isHighlighted={isNodeHighlighted(child, highlightedLogEntry)}
               />
-              
             </React.Fragment>
           ))}
         </div>
@@ -91,7 +99,16 @@ const ClassNode = ({ node, onNodeSelect, level = 0, path = [] }) => {
   );
 };
 
-const ClassTree = ({ data, onNodeSelect }) => {
+const isNodeHighlighted = (node, logEntry) => {
+  if (!logEntry) return false;
+  return (
+    node.functionName === logEntry.function_name &&
+    node.name === logEntry.class_run &&
+    node.timestamp === logEntry.timestamp
+  );
+};
+
+const ClassTree = ({ data, onNodeSelect, highlightedLogEntry }) => {
   if (!data || !data.children || data.children.length === 0) {
     return <div className="empty-tree">No data available</div>;
   }
@@ -101,7 +118,12 @@ const ClassTree = ({ data, onNodeSelect }) => {
       <h2>Class Hierarchy Visualization</h2>
       {data.children.map((node, index) => (
         <React.Fragment key={index}>
-          <ClassNode node={node} onNodeSelect={onNodeSelect} />
+          <ClassNode
+            node={node}
+            onNodeSelect={onNodeSelect}
+            highlightedLogEntry={highlightedLogEntry}
+            isHighlighted={isNodeHighlighted(node, highlightedLogEntry)}
+          />
           {index < data.children.length - 1 && (
             <div className="arrow-container">
               <svg width="30" height="40">
@@ -114,14 +136,14 @@ const ClassTree = ({ data, onNodeSelect }) => {
                     refY="3.5"
                     orient="auto"
                   >
-                    <polygon points="0 0, 10 3.5, 0 7" fill="#3498db" />
+                    <polygon points="0 0, 10 3.5, 0 7" />
                   </marker>
                 </defs>
                 <line
                   x1="15"
-                  y1="10%"
+                  y1="0"
                   x2="15"
-                  y2="90%"
+                  y2="40"
                   stroke="#3498db"
                   strokeWidth="2"
                   markerEnd={`url(#arrowhead-root-vert-${index})`}

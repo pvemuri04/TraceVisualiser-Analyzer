@@ -1,79 +1,133 @@
 .stats-panel {
   padding: 20px;
-  background-color: #fff;
+  background-color: #ffffff; /* White background */
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08); /* Subtle shadow */
   margin-bottom: 20px;
+  border: 1px solid #e0e0e0; /* Light border */
 }
 
 .stats-panel h3 {
   margin-top: 0;
-  margin-bottom: 15px;
-  color: #333;
+  margin-bottom: 18px; /* More space below heading */
+  color: #2c3e50; /* Darker heading color */
+  font-size: 1.1rem; /* Slightly larger heading */
+  font-weight: 600;
 }
 
 .stats-panel h4 {
-  margin-top: 20px;
-  margin-bottom: 10px;
-  color: #333;
+  margin-top: 25px; /* More space above subheadings */
+  margin-bottom: 12px;
+  color: #34495e; /* Slightly lighter subheading color */
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Adjusted min-width */
+  gap: 18px; /* Slightly more gap */
 }
 
 .stat-item {
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 5px;
+  padding: 18px; /* More padding */
+  background-color: #f8fafd; /* Lighter background */
+  border-radius: 6px; /* Slightly more rounded corners */
   text-align: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05); /* More subtle shadow */
+  border: 1px solid #f0f0f0; /* Very light border */
 }
 
 .stat-label {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
+  font-size: 0.85rem; /* Slightly smaller font */
+  color: #777; /* Softer color */
+  margin-bottom: 10px; /* More space below label */
+  font-weight: 500;
 }
 
 .stat-value {
-  font-size: 24px;
+  font-size: 2.2rem; /* Larger value font */
   font-weight: bold;
-  color: #3498db;
+  color: #3498db; /* Primary blue */
 }
 
 .class-stats {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px; /* More space between class stats */
 }
 
 .class-stat-item {
-  padding: 12px;
-  background-color: #f8f9fa;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  padding: 15px; /* More padding */
+  background-color: #f8fafd; /* Lighter background */
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  border: 1px solid #f0f0f0;
 }
 
 .class-name {
-  font-size: 14px;
-  font-weight: bold;
-  margin-bottom: 5px;
+  font-size: 0.95rem; /* Slightly larger font */
+  font-weight: 600;
+  margin-bottom: 6px;
   color: #333;
 }
 
 .class-counts {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: 0.85rem; /* Slightly smaller font */
+  color: #666;
 }
 
 .entry-count {
-  color: #2ecc71;
+  color: #27ae60; /* Slightly darker green */
+  font-weight: 500;
 }
 
 .exit-count {
-  color: #e74c3c;
+  color: #c0392b; /* Slightly darker red */
+  font-weight: 500;
+}
+
+.unmatched-calls, .function-performance {
+  margin-top: 15px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.unmatched-call-item, .func-perf-item {
+  background-color: #fff0f0; /* Light red background for unmatched calls */
+  border: 1px solid #ffcccc;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+}
+
+.func-perf-item {
+  background-color: #f0f8ff; /* Light blue background for performance items */
+  border: 1px solid #e0f0ff;
+}
+
+.call-type {
+  font-weight: bold;
+  color: #c0392b;
+  margin-bottom: 5px;
+}
+
+.func-name {
+  font-weight: bold;
+  color: #3498db;
+  margin-bottom: 5px;
+}
+
+.call-details, .func-stats {
+  color: #555;
+}
+
+.more-unmatched-calls {
+  font-style: italic;
+  color: #777;
+  margin-top: 5px;
+  text-align: center;
 }

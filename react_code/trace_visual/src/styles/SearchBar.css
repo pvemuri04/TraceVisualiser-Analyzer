@@ -5,34 +5,35 @@
 
 .search-bar input {
   width: 100%;
-  padding: 10px 15px;
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  font-size: 14px;
-  transition: border-color 0.3s;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  padding: 12px 18px; /* Slightly more padding */
+  border: 1px solid #e0e0e0; /* Lighter, more subtle border */
+  border-radius: 6px; /* Slightly more rounded corners */
+  font-size: 15px; /* Slightly larger font */
+  transition: all 0.3s ease-in-out; /* Smoother transition */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06); /* More subtle shadow */
 }
 
 .search-bar input:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+  border-color: #3498db; /* Primary blue for focus */
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); /* Softer, more modern focus ring */
 }
 
 .clear-button {
   position: absolute;
-  right: 10px;
+  right: 12px; /* Adjusted position */
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  font-size: 18px;
-  color: #999;
+  font-size: 20px; /* Slightly larger icon */
+  color: #b0b0b0; /* Softer gray for the button */
   cursor: pointer;
   padding: 0;
   line-height: 1;
+  transition: color 0.2s ease-in-out;
 }
 
 .clear-button:hover {
-  color: #666;
+  color: #888; /* Slightly darker on hover */
 }
