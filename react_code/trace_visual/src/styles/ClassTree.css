@@ -1,3 +1,52 @@
+/* Statement nodes styling */
+.statements-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.statement-node {
+  border: 2px solid;
+  border-radius: 5px;
+  padding: 3px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.statement-node:last-child {
+  margin-bottom: 0;
+}
+
+.statement-node.assert {
+  border-color: #f1c40f;
+  background-color: #fff9c4; /* Light yellow for Assert */
+}
+
+.statement-node.debug {
+  border-color: #e74c3c;
+  background-color: #ffcdd2; /* Light red for Debug */
+}
+
+.statement-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.statement-type {
+  font-weight: bold;
+}
+
+.statement-timestamp {
+  font-size: 12px;
+  color: #666;
+}
+
+.statement-message {
+  word-break: break-word;
+}
+
+
 .class-tree {
   padding: 20px;
   background-color: #fff;

@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
 import '../styles/ClassTree.css';
 
+const StatementNode = ({ statement }) => {
+  const isAssert = statement.type === 'A';
+  
+  return (
+    <div className={`statement-node ${isAssert ? 'assert' : 'debug'}`}>
+      <div className="statement-header">
+        <span className="statement-type">{isAssert ? 'Assert' : 'Debug'}</span>
+        {statement.timestamp && <span className="statement-timestamp">{statement.timestamp}</span>}
+      </div>
+      <div className="statement-message">{statement.message}</div>
+    </div>
+  );
+};
 const ClassNode = ({ node, onNodeSelect, level = 0, path = [] }) => {
   const [expanded, setExpanded] = useState(false);
   const currentPath = [...path, node.name];
@@ -23,26 +36,28 @@ const ClassNode = ({ node, onNodeSelect, level = 0, path = [] }) => {
         </div>
         {node.message && <div className="node-message">{node.message}</div>}
       </div>
+
+      {expanded && node.statements && node.statements.length > 0 && (
+        <div className="statements-container" style={{ marginLeft: `${level * 20 + 20}px` }}>
+          {node.statements.map((statement, index) => (
+            <StatementNode key={index} statement={statement} />
+          ))}
+        </div>
+      )}
       
       {expanded && node.children && node.children.length > 0 && (
         <div className="children-container">
           {node.children.map((child, index) => (
             <React.Fragment key={index}>
-              <ClassNode 
-                node={child} 
-                onNodeSelect={onNodeSelect} 
-                level={level + 1}
-                path={currentPath}
-              />
-              {index < node.children.length - 1 && (
+              {index < node.children.length  && (
                 <div className="arrow-container">
-                  <svg height="30" width="100%">
+                  <svg width="30" height="40">
                     <defs>
                       <marker
-                        id={`arrowhead-${level}-${index}`}
+                        id={`arrowhead-vert-${level}-${index}`}
                         markerWidth="10"
                         markerHeight="7"
-                        refX="10"
+                        refX="5"
                         refY="3.5"
                         orient="auto"
                       >
@@ -50,17 +65,24 @@ const ClassNode = ({ node, onNodeSelect, level = 0, path = [] }) => {
                       </marker>
                     </defs>
                     <line
-                      x1="10%"
-                      y1="15"
-                      x2="90%"
-                      y2="15"
+                      x1="15"
+                      y1="10%"
+                      x2="15"
+                      y2="90%"
                       stroke="#3498db"
                       strokeWidth="2"
-                      markerEnd={`url(#arrowhead-${level}-${index})`}
+                      markerEnd={`url(#arrowhead-vert-${level}-${index})`}
                     />
                   </svg>
                 </div>
               )}
+              <ClassNode 
+                node={child} 
+                onNodeSelect={onNodeSelect} 
+                level={level + 1}
+                path={currentPath}
+              />
+              
             </React.Fragment>
           ))}
         </div>
@@ -82,13 +104,13 @@ const ClassTree = ({ data, onNodeSelect }) => {
           <ClassNode node={node} onNodeSelect={onNodeSelect} />
           {index < data.children.length - 1 && (
             <div className="arrow-container">
-              <svg height="30" width="100%">
+              <svg width="30" height="40">
                 <defs>
                   <marker
-                    id={`arrowhead-root-${index}`}
+                    id={`arrowhead-root-vert-${index}`}
                     markerWidth="10"
                     markerHeight="7"
-                    refX="10"
+                    refX="5"
                     refY="3.5"
                     orient="auto"
                   >
@@ -96,13 +118,13 @@ const ClassTree = ({ data, onNodeSelect }) => {
                   </marker>
                 </defs>
                 <line
-                  x1="10%"
-                  y1="15"
-                  x2="90%"
-                  y2="15"
+                  x1="15"
+                  y1="10%"
+                  x2="15"
+                  y2="90%"
                   stroke="#3498db"
                   strokeWidth="2"
-                  markerEnd={`url(#arrowhead-root-${index})`}
+                  markerEnd={`url(#arrowhead-root-vert-${index})`}
                 />
               </svg>
             </div>

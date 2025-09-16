@@ -43,6 +43,5 @@ def main():
     with open(output_file, 'w') as f:
         json.dump(sorted_data, f, indent=2)
     print(f"Parsed log saved to {output_file}")
-
 if __name__ == "__main__":
     main()

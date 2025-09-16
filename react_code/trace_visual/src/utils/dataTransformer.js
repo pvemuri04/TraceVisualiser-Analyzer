@@ -25,6 +25,7 @@ export function transformLogData(logData) {
           message: message,
           timestamp: timestamp,
           children: [],
+          statements: [],
           parent: stack[stack.length - 1]
         };
         
@@ -35,6 +36,19 @@ export function transformLogData(logData) {
         if (stack[stack.length - 1].name === className) {
           stack.pop();
         }
+      }
+    }
+    else if (entry.event_type === "A" || entry.event_type === "D") {
+      // Assert or Debug statement - add to current class's statements
+      if (stack.length > 1) { // Make sure we have a current class
+        const statement = {
+          type: entry.event_type,
+          message: entry.message,
+          timestamp: timestamp,
+          className: entry.class_run
+        };
+        
+        stack[stack.length - 1].statements.push(statement);
       }
     }
   });

@@ -18,7 +18,7 @@ const PathDisplay = ({ path }) => {
         {path.map((item, index) => (
           <div key={index} className="path-item">
             <span>{item}</span>
-            {index < path.length - 1 && <span className="path-arrow">→</span>}
+            {index < path.length - 1 && <span className="path-arrow">↓</span>}
           </div>
         ))}
       </div>

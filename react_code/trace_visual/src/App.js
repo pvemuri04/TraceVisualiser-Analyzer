@@ -8,7 +8,7 @@ import { transformLogData } from './utils/dataTransformer';
 import './App.css';
 
 // Sample data - replace with actual data fetching
-import sampleData from './sampleData.json';
+import sampleData from './parser/parsed_log.json';
 
 function App() {
   const [logData, setLogData] = useState(null);
